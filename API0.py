@@ -22,10 +22,8 @@ from keras.preprocessing import image
 app = Flask(__name__)
 api = Api(app)
 
-# APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 cwd = os.getcwd()
-IMAGE_PATH = cwd + "\\00e909aa-e3ae-4558-9961-336bb0f35db3___JR_FrgE.S 8593_270deg.jpg"
-MODEL_FILE_PATH = cwd + "\\pre_train_inception.h5"
+MODEL_FILE_PATH = cwd + "\\EfficientNet.h5"
 
 class Model:
     def __init__(self, modelFilePath):
@@ -108,6 +106,6 @@ api.add_resource(Image, "/upload_image")
 
 if __name__ == "__main__":
     cwd = os.getcwd()
-    modelFilePath = cwd + "/" + "pre_train_inception.h5"
+    modelFilePath = MODEL_FILE_PATH
     model = Model(modelFilePath)
     app.run(debug=True)
