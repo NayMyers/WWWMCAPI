@@ -64,6 +64,7 @@ class Image(Resource):
         responseMessage = "Invalid Request"
         pngPat = r"\.png"
         jpgPat = r"\.jpg"
+        jpgPat2 = r"\.JPG"
 
         now = datetime.now()
         today = date.today()
@@ -75,7 +76,9 @@ class Image(Resource):
 
         pngCheck = re.search(pngPat, sentImageName)
         jpgCheck = re.search(jpgPat, sentImageName)
-        if pngCheck == None and jpgCheck == None:
+        jpgCheck2 = re.search(jpgPat2, sentImageName)
+
+        if pngCheck == None and jpgCheck == None and jpgCheck2 == None:
             return{"data": "INVALID FILE FORMAT. ONLY jpg OR png"}
 
         filetype = sentImageName.split('.')[-1]
@@ -90,6 +93,8 @@ class Image(Resource):
         results = results[0] #the list of results are nested inside a list so one pops off the outer list
         results = results.tolist()
         jsonResults = json.dumps(results)
+
+        os.remove(filePath)
 
         return{
         "data": "IMAGE " + sentImageName + " UPLOADED",
