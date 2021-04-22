@@ -61,13 +61,6 @@ class HelloWorld(Resource):
 
 class Image(Resource):
     def put(self):
-        pngPat = r"\.png"
-        jpgPat = r"\.jpg"
-        jpgPat2 = r"\.JPG"
-
-        if pngCheck == None and jpgCheck == None and jpgCheck2 == None:
-            return{"data": "INVALID FILE FORMAT. ONLY jpg OR png"}
-
         now = datetime.now()
         today = date.today()
         currentDate = today.strftime("%y-%m-%d")
@@ -76,11 +69,15 @@ class Image(Resource):
         sentImageName = request.form['imageName']
         sentImage = request.files['image']
 
+        pngPat = r"\.png"
+        jpgPat = r"\.jpg"
+        jpgPat2 = r"\.JPG"
         pngCheck = re.search(pngPat, sentImageName)
         jpgCheck = re.search(jpgPat, sentImageName)
         jpgCheck2 = re.search(jpgPat2, sentImageName)
 
-
+        if pngCheck == None and jpgCheck == None and jpgCheck2 == None:
+            return{"data": "INVALID FILE FORMAT. ONLY jpg OR png"}
 
         filetype = sentImageName.split('.')[-1]
         sentImageFileName = currentDate + '-' + currentTime + '.' + filetype
