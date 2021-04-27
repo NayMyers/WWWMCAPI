@@ -59,6 +59,13 @@ class HelloWorld(Resource):
     def get(self, name):
         return {"data": "Hello World GET " + name}
 
+class Recourse(Resource):
+    def get(self, defectName):
+        print("passed")
+        recourse = recourseInfo[defectName]['recourse']
+        prevention = recourseInfo[defectName]['prevention']
+        return {"recourse": recourse, "prevention": prevention}
+
 class Image(Resource):
     def put(self):
         now = datetime.now()
@@ -106,9 +113,13 @@ class Image(Resource):
 
 api.add_resource(HelloWorld, "/hello_world/<string:name>")
 api.add_resource(Image, "/upload_image")
+api.add_resource(Recourse, "/recourse/<string:defectName>")
+
 
 if __name__ == "__main__":
     cwd = os.getcwd()
     modelFilePath = MODEL_FILE_PATH
     model = Model(modelFilePath)
+    with open('recourse.json', 'r') as f:
+        recourseInfo = json.load(f)
     app.run(debug=True)
