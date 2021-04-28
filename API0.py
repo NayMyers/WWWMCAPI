@@ -61,10 +61,14 @@ class HelloWorld(Resource):
 
 class Recourse(Resource):
     def get(self, defectName):
-        print("passed")
         recourse = recourseInfo[defectName]['recourse']
         prevention = recourseInfo[defectName]['prevention']
         return {"recourse": recourse, "prevention": prevention}
+
+class ModelInfo(Resource):
+    def get(self):
+        return json.dumps(model.cropClasses)
+
 
 class Image(Resource):
     def put(self):
@@ -114,6 +118,8 @@ class Image(Resource):
 api.add_resource(HelloWorld, "/hello_world/<string:name>")
 api.add_resource(Image, "/upload_image")
 api.add_resource(Recourse, "/recourse/<string:defectName>")
+api.add_resource(ModelInfo, "/model_info")
+
 
 
 if __name__ == "__main__":
