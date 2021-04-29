@@ -69,7 +69,6 @@ class ModelInfo(Resource):
     def get(self):
         return json.dumps(model.cropClasses)
 
-
 class Image(Resource):
     def put(self):
         now = datetime.now()
