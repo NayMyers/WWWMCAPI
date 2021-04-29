@@ -7,6 +7,7 @@ import keras
 import numpy as np
 import os
 import json
+import operator
 from PIL import Image
 from keras import layers
 from keras.layers import Input, Add, Dense, Activation, ZeroPadding2D, BatchNormalization, Flatten, Conv2D, AveragePooling2D, MaxPooling2D, GlobalMaxPooling2D
@@ -21,9 +22,6 @@ from keras.initializers import glorot_uniform
 from keras.preprocessing import image
 app = Flask(__name__)
 api = Api(app)
-
-cwd = os.getcwd()
-MODEL_FILE_PATH = cwd + "\\EfficientNet.h5"
 
 class Model:
     def __init__(self, modelFilePath):
@@ -41,6 +39,31 @@ class Model:
     def determineClass(self, predictionArray):
         return np.argmax(predictionArray,axis=1)
 
+    def determineTopClasses(self, predictionArray):
+        predictDict = {}
+        topClasses = []
+        for idx, prediction in enumerate(predictionArray):
+            predictDict[idx] = prediction
+        print(predictDict)
+        sortedPredictDict = sorted(predictDict.items(), key=operator.itemgetter(1), reverse=True)
+        print(sortedPredictDict)
+        for entries in list(sortedPredictDict)[0:3]:
+            topClasses.append(entries[0])
+        return topClasses
+
+    def determineClassNames(self, classArray):
+        classNames = []
+        for classNum in classArray:
+            classNum = int(classNum)
+            for key, value in self.cropClasses.items():
+                if classNum == value:
+                    classNames.append(key)
+
+        if len(classNames) < len(classArray):
+            return "one or more invalid class numbers"
+        else:
+            return classNames
+
     def determineClassName(self, classNum):
         classNum = int(classNum)
         for key, value in self.cropClasses.items():
@@ -48,9 +71,18 @@ class Model:
                 return key
         return "key doesn't exist"
 
+
     def infer(self, imageFilePath = None):
         image = self.preprocess(imageFilePath)
         return self.model.predict(image)
+
+# initialize some data prior to creating the API
+cwd = os.getcwd()
+MODEL_FILE_PATH = cwd + "\\EfficientNet.h5"
+model = Model(MODEL_FILE_PATH)
+with open('recourse.json', 'r') as f:
+    recourseInfo = json.load(f)
+model.determineClassName(0) #this forces the model to instantiate
 
 class HelloWorld(Resource):
     def post(self, name):
@@ -98,6 +130,8 @@ class Image(Resource):
         results = model.infer(filePath)
         predictedClass = str(np.argmax(results))
         className = model.determineClassName(predictedClass)
+        topClasses = model.determineTopClasses(results[0])
+        topClassNames = model.determineClassNames(topClasses)
         results = results[0] #the list of results are nested inside a list so one pops off the outer list
         results = results.tolist()
         jsonResults = json.dumps(results)
@@ -108,7 +142,9 @@ class Image(Resource):
         "data": "IMAGE " + sentImageName + " UPLOADED",
         "results" : jsonResults,
         "classNo" : predictedClass,
-        "className": className
+        "className": className,
+        "topClasses": topClasses,
+        "topClassNames": topClassNames
           }
 
     def get(self, image):
@@ -122,9 +158,4 @@ api.add_resource(ModelInfo, "/model_info")
 
 
 if __name__ == "__main__":
-    cwd = os.getcwd()
-    modelFilePath = MODEL_FILE_PATH
-    model = Model(modelFilePath)
-    with open('recourse.json', 'r') as f:
-        recourseInfo = json.load(f)
     app.run(debug=True)
