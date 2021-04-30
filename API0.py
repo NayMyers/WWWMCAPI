@@ -36,9 +36,6 @@ class Model:
         input_array = np.array([image_array])
         return input_array
 
-    def determineClass(self, predictionArray):
-        return np.argmax(predictionArray,axis=1)
-
     def determineTopClasses(self, predictionArray):
         predictDict = {}
         topClasses = []
@@ -128,8 +125,6 @@ class Image(Resource):
         filePath = cwd + "/" + sentImageFileName
 
         results = model.infer(filePath)
-        predictedClass = str(np.argmax(results))
-        className = model.determineClassName(predictedClass)
         topClasses = model.determineTopClasses(results[0])
         topClassNames = model.determineClassNames(topClasses)
         results = results[0] #the list of results are nested inside a list so one pops off the outer list
@@ -141,8 +136,8 @@ class Image(Resource):
         return{
         "data": "IMAGE " + sentImageName + " UPLOADED",
         "results" : jsonResults,
-        "classNo" : predictedClass,
-        "className": className,
+        "classNo" : topClasses[0],
+        "className": topClassNames[0],
         "topClasses": topClasses,
         "topClassNames": topClassNames
           }
