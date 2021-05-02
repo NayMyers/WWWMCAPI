@@ -41,10 +41,9 @@ class Model:
         topClasses = []
         for idx, prediction in enumerate(predictionArray):
             predictDict[idx] = prediction
-        print(predictDict)
-        sortedPredictDict = sorted(predictDict.items(), key=operator.itemgetter(1), reverse=True)
-        print(sortedPredictDict)
-        for entries in list(sortedPredictDict)[0:3]:
+        for entries in list(sorted(predictDict.items(),
+        key=operator.itemgetter(1),
+        reverse=True))[0:3]:
             topClasses.append(entries[0])
         return topClasses
 
@@ -127,15 +126,12 @@ class Image(Resource):
         results = model.infer(filePath)
         topClasses = model.determineTopClasses(results[0])
         topClassNames = model.determineClassNames(topClasses)
-        results = results[0] #the list of results are nested inside a list so one pops off the outer list
-        results = results.tolist()
-        jsonResults = json.dumps(results)
 
         os.remove(filePath)
 
         return{
         "data": "IMAGE " + sentImageName + " UPLOADED",
-        "results" : jsonResults,
+        "results" : json.dumps(results[0].tolist()),
         "classNo" : topClasses[0],
         "className": topClassNames[0],
         "topClasses": topClasses,
