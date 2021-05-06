@@ -149,4 +149,4 @@ api.add_resource(ModelInfo, "/model_info")
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
