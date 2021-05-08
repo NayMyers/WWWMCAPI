@@ -36,14 +36,14 @@ class Model:
         input_array = np.array([image_array])
         return input_array
 
-    def determineTopClasses(self, predictionArray):
+    def determineTopXClasses(self, predictionArray, xClasses):
         predictDict = {}
         topClasses = []
         for idx, prediction in enumerate(predictionArray):
             predictDict[idx] = prediction
         for entries in list(sorted(predictDict.items(),
         key=operator.itemgetter(1),
-        reverse=True))[0:3]:
+        reverse=True))[0:xClasses]:
             topClasses.append(entries[0])
         return topClasses
 
@@ -67,6 +67,12 @@ class Model:
                 return key
         return "key doesn't exist"
 
+    def percentLikelihood(self, topClasses, predictionArray):
+        percentLikelihood = []
+        for _class in topClasses:
+            percentLikelihood.append('{:.10f}'.format(predictionArray[_class]*100))
+        print(percentLikelihood)
+        return percentLikelihood
 
     def infer(self, imageFilePath = None):
         image = self.preprocess(imageFilePath)
@@ -123,19 +129,20 @@ class Image(Resource):
         cwd = os.getcwd()
         filePath = cwd + "/" + sentImageFileName
 
-        results = model.infer(filePath)
-        topClasses = model.determineTopClasses(results[0])
+        results = model.infer(filePath)[0]
+        topClasses = model.determineTopXClasses(results, 3)
         topClassNames = model.determineClassNames(topClasses)
 
         os.remove(filePath)
 
         return{
         "data": "IMAGE " + sentImageName + " UPLOADED",
-        "results" : json.dumps(results[0].tolist()),
+        "results" : json.dumps(results.tolist()),
         "classNo" : topClasses[0],
         "className": topClassNames[0],
         "topClasses": topClasses,
-        "topClassNames": topClassNames
+        "topClassNames": topClassNames,
+        "topClassesPercent": model.percentLikelihood(topClasses, results)
           }
 
     def get(self, image):
