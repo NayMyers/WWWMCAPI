@@ -80,7 +80,7 @@ class Model:
 
 # initialize some data prior to creating the API
 cwd = os.getcwd()
-MODEL_FILE_PATH = cwd + "\\EfficientNet.h5"
+MODEL_FILE_PATH = cwd + "\\EfficientNet.h5" #this must be changed prior to running in production to /
 model = Model(MODEL_FILE_PATH)
 with open('recourse.json', 'r') as f:
     recourseInfo = json.load(f)
